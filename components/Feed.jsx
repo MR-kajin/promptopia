@@ -24,21 +24,42 @@ const PromptCardList = ({ data, handleTagClick }) => {
 const Feed = () => {
 
 const [searchText, setSearchText] = useState('');
+const [searchActive, setSearchActive] = useState('false');
+const [dataFiltered, setDataFiltered] = useState('');
 const [posts, setPosts] = useState([])
 
 const handleSearchChange = (e) => {
+  e.preventDefault();
+  setSearchText(e.target.value);
 
-}
+  try {
+    const filteredPosts = posts.filter((post) => {
+      return post.prompt.includes(searchText);
+    });
+
+    if (searchActive) {
+      setPosts(filteredPosts);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 
 useEffect(() => {
   const fetchPosts = async () => {
     const response = await fetch('/api/prompt');
     const data = await response.json();
 
-    setPosts(data);
-  }
+    if (searchActive) {
+      setPosts(data.filter((post) => {
+        return post.prompt.includes(searchText) || post.id == searchText || post.tag == searchText.slice(1) ? post.prompt : null;
+      }));
+    }
+  };
+
   fetchPosts();
-}, [])
+}, [searchActive, searchText]);
 
   return (
     <section className='feed'>
