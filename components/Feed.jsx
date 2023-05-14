@@ -1,5 +1,8 @@
 "use client";
 
+//add the Search feature and the filter by clicking Tag here and 
+// add look at other profiles creating a new folder [id] and page in profile
+
 import { useState, useEffect} from 'react';
 
 import PromptCard from './PromptCard';
