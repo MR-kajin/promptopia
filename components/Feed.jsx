@@ -1,6 +1,6 @@
 "use client";
 
-//add the Search feature and the filter by clicking Tag here and 
+
 // add look at other profiles creating a new folder [id] and page in profile
 
 import { useState, useEffect} from 'react';
@@ -24,42 +24,51 @@ const PromptCardList = ({ data, handleTagClick }) => {
 const Feed = () => {
 
 const [searchText, setSearchText] = useState('');
-const [searchActive, setSearchActive] = useState('false');
-const [dataFiltered, setDataFiltered] = useState('');
-const [posts, setPosts] = useState([])
+const [posts, setPosts] = useState([]);
+const [searchedResults, setSearchedResults] = useState([]);
+const [searchTimeout, setSearchTimeout] = useState(null);
 
 const handleSearchChange = (e) => {
-  e.preventDefault();
+  clearTimeout(searchTimeout);
   setSearchText(e.target.value);
 
-  try {
-    const filteredPosts = posts.filter((post) => {
-      return post.prompt.includes(searchText);
-    });
-
-    if (searchActive) {
-      setPosts(filteredPosts);
-    }
-  } catch (error) {
-    console.log(error);
-  }
+    // debounce method
+    setSearchTimeout(
+      setTimeout(() => {
+        const searchResult = filterPrompts(e.target.value);
+        setSearchedResults(searchResult);
+      }, 500)
+    );
 };
 
 
-useEffect(() => {
-  const fetchPosts = async () => {
-    const response = await fetch('/api/prompt');
-    const data = await response.json();
+    const fetchPosts = async () => {
+      const response = await fetch('/api/prompt');
+      const data = await response.json();
 
-    if (searchActive) {
-      setPosts(data.filter((post) => {
-        return post.prompt.includes(searchText) || post.id == searchText || post.tag == searchText.slice(1) ? post.prompt : null;
-      }));
-    }
+      setPosts(data);
   };
 
-  fetchPosts();
-}, [searchActive, searchText]);
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const filterPrompts = (searchtext) => {
+    const word = searchtext.toLowerCase()
+    return posts.filter(
+      (item) =>
+        item.creator.username == word ||
+        item.tag == word ||
+        item.prompt.toLowerCase().includes(word)
+    );
+  };
+
+    const handleTagClick = (tagName) => {
+      setSearchText(tagName);
+
+      const searchResult = filterPrompts(tagName);
+      setSearchedResults(searchResult);
+    }
 
   return (
     <section className='feed'>
@@ -73,12 +82,18 @@ useEffect(() => {
         className='search_input peer'
         />
       </form>
-
+    {searchText ? (
       <PromptCardList  
-      data={posts}
-      handleTagClick={() => {}}
-
+      data={searchedResults}
+      handleTagClick={handleTagClick}
       />
+) : (
+    <PromptCardList 
+    data={posts} 
+    handleTagClick = {handleTagClick} 
+    />
+)}
+      
     </section>
   )
 }
