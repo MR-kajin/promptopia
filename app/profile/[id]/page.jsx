@@ -1,37 +1,34 @@
-"use client"
+"use client";
 
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Profile from "@components/Profile";
 
-import Profile from '@components/Profile';
+const UserProfile = ({ params }) => {
+  const searchParams = useSearchParams();
+  const userName = searchParams.get("name");
 
-const OtherProfile = () => {
-    const router = useRouter();
+  const [userPosts, setUserPosts] = useState([]);
 
-const [posts, setPosts] = useState([]);
-
-useEffect(() => {
+  useEffect(() => {
     const fetchPosts = async () => {
-        const response = await fetch(`/api/users/${user.id}/posts`);
-        const data = await response.json();
-    
-        setPosts(data);
-    }
+      const response = await fetch(`/api/users/${params?.id}/posts`);
+      const data = await response.json();
 
+      setUserPosts(data);
+    };
 
-        if(user.id) fetchPosts();
-    }, [])    
+    if (params?.id) fetchPosts();
+  }, [params.id]);
 
   return (
-    <Profile 
-    name={user.id}
-    desc= {`Welcome to ${user.id} page`}
-    data={posts}
-        />
+    <Profile
+      name={userName}
+      desc={`Welcome to ${userName}'s personalized profile page. Explore ${userName}'s exceptional prompts and be inspired by the power of their imagination`}
+      data={userPosts}
+    />
+  );
+};
 
-
-  )
-}
-
-export default OtherProfile
+export default UserProfile;
