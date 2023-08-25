@@ -7,9 +7,11 @@ export const metadata = {
     description: 'Discover & Share AI Prompts'
 }
 
+{/*Remember that next/auth does not use only fronend auth but also backend so we need API */}
+
 const RootLayout = ({children})  => {
   return (
-    <html Lang="en">
+    <html lang="en">
         <body>
             <div className='main'>
                 <div className='gradient' />
